@@ -13,7 +13,7 @@
     }
     catch (err){ /*ignore*/ }
 
-    soundCloudify.service('CorePlayer', function($rootScope, $window, $mdToast, Messaging, NowPlaying, CLIENT_ID, GATracker, LastFMAuthentication) {
+    soundCloudify.service('CorePlayer', function($rootScope, $window, $log, $mdToast, Messaging, NowPlaying, CLIENT_ID, GATracker, LastFMAuthentication, SCConfiguration) {
 
         function debounce(fn, delay) {
             var timer = null;
@@ -25,6 +25,8 @@
                 }, delay);
             };
         }
+
+
 
 
         var self = this;
@@ -113,7 +115,7 @@
 
             index = index || 0;
 
-            var uuid = this.nowplaying.trackIds[index];
+          var uuid = this.nowplaying.trackIds[index];
 
             if (!uuid) {
                 angular.extend(self.state, {
@@ -165,7 +167,8 @@
         };
 
         this.playPause = function(index) {
-            if (typeof index !== 'undefined') {
+
+          if (typeof index !== 'undefined') {
                 if (index === this.state.currentIndex && backgroundPage.mainPlayer.activePlayer) {
                     this.state.playing ? this.pause() : this.resume();
                 } else {
@@ -189,6 +192,7 @@
             this.state.currentTime = xpos * this.state.duration;
             backgroundPage.mainPlayer.seek(xpos);
         };
+
 
         this.updateState = function(data) {
             if(!this.state.currentTrack) {
@@ -218,18 +222,35 @@
         this.toggleRepeat = function() {
             if (this.state.repeat === 0) {
                 this.state.repeat = 1; // repeat all
+              $rootScope.repeat_color = "green";
+
             } else if (this.state.repeat === 1) {
                 this.state.repeat = 2; // repeat one
+              $rootScope.repeat_color = "green";
+
             } else {
                 this.state.repeat = 0; // no repeat
+              $rootScope.repeat_color = "red";
+
             }
             NowPlaying.saveState(this.state);
             GATracker.trackPlayer('toggle repeat', this.state.repeat === 1 ? 'all' : this.state.repeat === 2 ? 'one' : 'none');
         };
 
+        this.downloadMP3 = function(url){
+          console.log(url);
+        }
+
+
         this.toggleShuffle = function() {
             this.state.shuffle = !this.state.shuffle;
+          $log.log("Fdsfds");
             NowPlaying.saveState(this.state);
+          if(this.state.shuffle){
+            $rootScope.shuffle_color = "green";
+          }else{
+            $rootScope.shuffle_color = "red";
+          }
             GATracker.trackPlayer('toggle shuffle', this.state.shuffle ? 'on' : 'off');
         };
 
@@ -273,7 +294,7 @@
 
         Messaging.registerErrorHandler(function() {
             $mdToast.show({
-                templateUrl: 'scripts/views/toastError.html',
+                templateUrl: SCConfiguration.getDirectiveViewPath() +'/toastErrorMessage.html',
                 hideDelay: 1000,
                 position: 'bottom right',
                 parent: angular.element(document.querySelector('#tab-content'))

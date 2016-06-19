@@ -40,7 +40,7 @@ var Utils = {
     }
 };
 
-var CLIENT_ID = '458dac111e2456c40805cd838f4548c1';
+var CLIENT_ID = '2cbdf16421586bfd411305bc03f86e6c';
 var ORIGIN_YOUTUBE = 'yt';
 var ORIGIN_SOUNDCLOUD = 'sc';
 
@@ -233,6 +233,7 @@ Player.prototype = {
         if (this.state.shuffle) {
 
             nextIndex = Utils.random(0, this.trackIds.length - 1);
+            console.log("In shuffle state")
 
         } else {
 
@@ -394,6 +395,8 @@ Player.prototype = {
             this.scrobbling = false;
             throw new Error('LastFM scrobbling has failed because of missing information!');
         }
+        console.log("Track " + track)
+        console.log("Artiest" + artist)
 
         window.LastFM.scrobble({
             track: track,
